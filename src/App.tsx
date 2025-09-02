@@ -17,6 +17,7 @@ export default function App(){
     kick: -6, snare: -10, hat: -14, bass: -8, chords: -10, arp: -14, lead: -9, master: 0
   });
   const [fx, setFx] = React.useState({ reverb: 0.15, delay: 0.1, pump: 0.0 });
+  const [seed, setSeed] = React.useState<number>(() => Math.floor(Math.random()*1000000));
 
   // Mappa strumenti General MIDI principali
   const GM_INSTRUMENTS = [
@@ -52,13 +53,13 @@ export default function App(){
   const [songDuration, setSongDuration] = React.useState(60); // default 60s
 
   function regen(){
-    const s = generate(params);
+    const s = generate(params, seed);
     setSong(s);
   }
 
   async function play(){
     if (!song) regen();
-    const s = song ?? generate(params);
+    const s = song ?? generate(params, seed);
     setSong(s);
     if (player) { player.dispose(); setPlayer(null); }
     const p = await createPlayer(s);
@@ -109,82 +110,88 @@ export default function App(){
   }, [fx, player]);
 
   return (
-    <div className="container">
-      <h1>🎛️ Procedural Music Generator</h1>
-      <p className="small">Genera musica multi–traccia con armonia guidata. <span className="kbd">Play</span> per ascoltare, <span className="kbd">Stop</span> per fermare. Regola BPM, tonalità, progressioni ed effetti.</p>
-
-      <div className="grid grid-2" style={{marginTop: 16}}>
-        <div className="grid" style={{alignContent:'start'}}>
-          <TransportControls
-            bpm={params.bpm}
-            setBpm={(n)=>setParams(p=>({...p, bpm: Math.max(60, Math.min(160, n))}))}
-            onPlay={play}
-            onStop={stop}
-            playing={playing}
-          />
-          <StyleAndHarmony
-            tonic={params.tonic}
-            setTonic={v=>setParams(p=>({...p, tonic: v}))}
-            mode={params.mode}
-            setMode={v=>setParams(p=>({...p, mode: v}))}
-            progression={params.progression}
-            setProgression={v=>setParams(p=>({...p, progression: v}))}
-            style={params.style}
-            setStyle={v=>setParams(p=>({...p, style: v}))}
-            setBpm={n=>setParams(p=>({...p, bpm: n}))}
-          />
-          <div className="panel">
-            <h3>Controllo generazione</h3>
-            <div className="row" style={{marginTop: 10}}>
-              <button className="btn" onClick={()=>regen()}>Rigenera fraseggio</button>
-              <button className="btn" onClick={exportMidi} disabled={!song}>Esporta MIDI</button>
-              <div>
-                <label>Umanizzazione</label>
-                <input type="range" min={0} max={1} step={0.01} value={params.humanize}
-                       onChange={e=>setParams(p=>({...p, humanize: parseFloat(e.target.value)}))} />
-              </div>
-              <div>
-                <label>Barre</label>
-                <input type="number" min={4} max={32} value={params.bars}
-                       onChange={e=>setParams(p=>({...p, bars: Math.max(4, Math.min(32, parseInt(e.target.value||'0')))}))} />
-              </div>
-              <div>
-                <label>Durata (secondi)</label>
-                <input type="number" min={10} max={600} value={songDuration}
-                       onChange={e=>setSongDuration(Math.max(10, Math.min(600, parseInt(e.target.value||'0'))))} />
-              </div>
-            </div>
-            <div style={{marginTop: 16}}>
-              <h4>Strumenti MIDI</h4>
-              {TRACKS.map(track => (
-                <div key={track} style={{marginBottom: 8}}>
-                  <label style={{marginRight: 8, minWidth: 60, display: 'inline-block'}}>{track.charAt(0).toUpperCase() + track.slice(1)}:</label>
-                  <select
-                    value={instruments[track]}
-                    onChange={e => setInstruments(prev => ({ ...prev, [track]: parseInt(e.target.value) }))}
-                  >
-                    {GM_INSTRUMENTS.map(inst => (
-                      <option key={inst.program} value={inst.program}>{inst.name}</option>
-                    ))}
-                  </select>
-                </div>
-              ))}
-            </div>
-            <p className="small">Tip: usa <b>I–V–vi–IV</b> per pop, <b>ii–V–I</b> per sapore jazz, <b>i–VII–VI–V</b> per mood andaluso.</p>
-          </div>
+    <div className="app-container">
+      <h1>Procedural Music Generator</h1>
+      <div className="panel">
+        <div className="row" style={{marginTop: 10}}>
+          <button className="btn" onClick={()=>regen()}>Rigenera fraseggio</button>
+          <button className="btn" onClick={exportMidi} disabled={!song}>Esporta MIDI</button>
+          <label style={{marginLeft:16}}>
+            Seed:
+            <input
+              type="number"
+              value={seed}
+              min={0}
+              max={999999999}
+              style={{width:100, marginLeft:8}}
+              onChange={e => setSeed(Number(e.target.value))}
+            />
+            <button style={{marginLeft:8}} onClick={()=>setSeed(Math.floor(Math.random()*1000000))}>Random</button>
+          </label>
         </div>
-        <div className="grid" style={{alignContent:'start'}}>
-          <MixerFx
-            volumes={volumes}
-            setVolumes={(v)=>setVolumes(prev=>({...prev, ...v}))}
-            fx={fx}
-            setFx={(f)=>setFx(prev=>({...prev, ...f}))}
-          />
-          <div className="panel footer">
-            <div>Scorciatoie: <span className="kbd">Play</span>/<span className="kbd">Stop</span>. Regola i volumi per bilanciare le parti.</div>
-            <div className="small">MVP: export MIDI non ancora incluso. Se lo desideri, posso aggiungerlo con <i>midi-writer-js</i>.</div>
-          </div>
+        <div className="row" style={{marginTop: 16}}>
+          <label>BPM:
+            <input type="number" value={params.bpm} min={60} max={180} style={{width:60, marginLeft:8}}
+              onChange={e=>setParams(p=>({...p, bpm: Math.max(60, Math.min(180, parseInt(e.target.value||'0')))}))} />
+          </label>
+          <label style={{marginLeft:16}}>Barre:
+            <input type="number" value={params.bars} min={4} max={32} style={{width:40, marginLeft:8}}
+              onChange={e=>setParams(p=>({...p, bars: Math.max(4, Math.min(32, parseInt(e.target.value||'0')))}))} />
+          </label>
+          <label style={{marginLeft:16}}>Durata (s):
+            <input type="number" value={songDuration} min={10} max={600} style={{width:60, marginLeft:8}}
+              onChange={e=>setSongDuration(Math.max(10, Math.min(600, parseInt(e.target.value||'0'))))} />
+          </label>
+          <label style={{marginLeft:16}}>Umanizzazione
+            <input type="range" min={0} max={1} step={0.01} value={params.humanize}
+              onChange={e=>setParams(p=>({...p, humanize: parseFloat(e.target.value)}))} />
+          </label>
         </div>
+        <StyleAndHarmony
+          tonic={params.tonic}
+          setTonic={v=>setParams(p=>({...p, tonic: v}))}
+          mode={params.mode}
+          setMode={v=>setParams(p=>({...p, mode: v}))}
+          progression={params.progression}
+          setProgression={v=>setParams(p=>({...p, progression: v}))}
+          style={params.style}
+          setStyle={v=>setParams(p=>({...p, style: v}))}
+          setBpm={n=>setParams(p=>({...p, bpm: n}))}
+        />
+        <div style={{marginTop: 16}}>
+          <h4>Strumenti MIDI</h4>
+          {TRACKS.map(track => (
+            <div key={track} style={{marginBottom: 8}}>
+              <label style={{marginRight: 8, minWidth: 60, display: 'inline-block'}}>{track.charAt(0).toUpperCase() + track.slice(1)}:</label>
+              <select
+                value={instruments[track]}
+                onChange={e => setInstruments(prev => ({ ...prev, [track]: parseInt(e.target.value) }))}
+              >
+                {GM_INSTRUMENTS.map(inst => (
+                  <option key={inst.program} value={inst.program}>{inst.name}</option>
+                ))}
+              </select>
+            </div>
+          ))}
+        </div>
+        <p className="small">Tip: usa <b>I–V–vi–IV</b> per pop, <b>ii–V–I</b> per sapore jazz, <b>i–VII–VI–V</b> per mood andaluso.</p>
+      </div>
+      <TransportControls
+        playing={playing}
+        onPlay={play}
+        onStop={stop}
+        bpm={params.bpm}
+        setBpm={n=>setParams(p=>({...p, bpm: n}))}
+      />
+      <MixerFx
+        volumes={volumes}
+        setVolumes={(v)=>setVolumes(prev=>({...prev, ...v}))}
+        fx={fx}
+        setFx={(f)=>setFx(prev=>({...prev, ...f}))}
+      />
+      <div className="panel footer">
+        <div>Scorciatoie: <span className="kbd">Play</span>/<span className="kbd">Stop</span>. Regola i volumi per bilanciare le parti.</div>
+        <div className="small">MVP: export MIDI non ancora incluso. Se lo desideri, posso aggiungerlo con <i>midi-writer-js</i>.</div>
       </div>
     </div>
   )

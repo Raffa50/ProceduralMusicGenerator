@@ -36,8 +36,22 @@ export type Song = {
 
 const STEPS_PER_BAR = 16;
 
+// PRNG deterministico (mulberry32)
+export function mulberry32(seed: number) {
+  let t = seed;
+  return function() {
+    t += 0x6D2B79F5;
+    let r = Math.imul(t ^ t >>> 15, 1 | t);
+    r ^= r + Math.imul(r ^ r >>> 7, 61 | r);
+    return ((r ^ r >>> 14) >>> 0) / 4294967296;
+  };
+}
+
 function rand() { return Math.random(); }
 function choice<T>(arr: T[]): T { return arr[Math.floor(Math.random()*arr.length)] }
+function choiceSeeded<T>(arr: T[], randFn: () => number): T {
+  return arr[Math.floor(randFn() * arr.length)];
+}
 
 export function defaultParams(): Params {
   return {
@@ -52,7 +66,8 @@ export function defaultParams(): Params {
   }
 }
 
-export function generate(params: Params): Song {
+export function generate(params: Params, seed?: number): Song {
+  const randFn = seed !== undefined ? mulberry32(seed) : Math.random;
   const tonicPc = NOTE_TO_PC[params.tonic] ?? 0;
   const stepsTotal = params.bars * STEPS_PER_BAR;
   const prog = params.progression;
