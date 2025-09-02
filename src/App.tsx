@@ -1,10 +1,10 @@
 import React from 'react'
-import { TransportControls } from './components/Transport'
 import { StyleAndHarmony } from './components/StyleAndHarmony'
 import { MixerFx } from './components/MixerFx'
 import { defaultParams, generate, type Params, type Song } from './lib/generator'
 import { createPlayer, type Player } from './lib/player'
 import { exportSongToMidi } from './lib/midiExport'
+import { MidiInstruments } from './components/MidiInstruments'
 
 export default function App(){
   const [params, setParams] = React.useState<Params>(() => ({
@@ -111,8 +111,22 @@ export default function App(){
 
   return (
     <div className="app-container">
-      <h1>Procedural Music Generator</h1>
+      <h1>🎛️ Procedural Music Generator</h1>
       <div className="panel">
+        <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', marginBottom: 24 }}>
+          <StyleAndHarmony
+            tonic={params.tonic}
+            setTonic={t => setParams(p => ({ ...p, tonic: t }))}
+            mode={params.mode}
+            setMode={m => setParams(p => ({ ...p, mode: m }))}
+            progression={params.progression}
+            setProgression={pr => setParams(p => ({ ...p, progression: pr }))}
+            style={params.style}
+            setStyle={s => setParams(p => ({ ...p, style: s }))}
+            setBpm={n => setParams(p => ({ ...p, bpm: n }))}
+          />
+          <MidiInstruments instruments={instruments} setInstruments={setInstruments} GM_INSTRUMENTS={GM_INSTRUMENTS} />
+        </div>
         <div className="row" style={{marginTop: 10}}>
           <button className="btn" onClick={()=>regen()}>Rigenera fraseggio</button>
           <button className="btn" onClick={exportMidi} disabled={!song}>Esporta MIDI</button>
@@ -146,43 +160,14 @@ export default function App(){
             <input type="range" min={0} max={1} step={0.01} value={params.humanize}
               onChange={e=>setParams(p=>({...p, humanize: parseFloat(e.target.value)}))} />
           </label>
+
+            {playing ? (
+                <button className="btn danger" onClick={stop}>Stop</button>
+            ) : (
+                <button className="btn primary" onClick={play}>Play</button>
+            )}
         </div>
-        <StyleAndHarmony
-          tonic={params.tonic}
-          setTonic={v=>setParams(p=>({...p, tonic: v}))}
-          mode={params.mode}
-          setMode={v=>setParams(p=>({...p, mode: v}))}
-          progression={params.progression}
-          setProgression={v=>setParams(p=>({...p, progression: v}))}
-          style={params.style}
-          setStyle={v=>setParams(p=>({...p, style: v}))}
-          setBpm={n=>setParams(p=>({...p, bpm: n}))}
-        />
-        <div style={{marginTop: 16}}>
-          <h4>Strumenti MIDI</h4>
-          {TRACKS.map(track => (
-            <div key={track} style={{marginBottom: 8}}>
-              <label style={{marginRight: 8, minWidth: 60, display: 'inline-block'}}>{track.charAt(0).toUpperCase() + track.slice(1)}:</label>
-              <select
-                value={instruments[track]}
-                onChange={e => setInstruments(prev => ({ ...prev, [track]: parseInt(e.target.value) }))}
-              >
-                {GM_INSTRUMENTS.map(inst => (
-                  <option key={inst.program} value={inst.program}>{inst.name}</option>
-                ))}
-              </select>
-            </div>
-          ))}
-        </div>
-        <p className="small">Tip: usa <b>I–V–vi–IV</b> per pop, <b>ii–V–I</b> per sapore jazz, <b>i–VII–VI–V</b> per mood andaluso.</p>
       </div>
-      <TransportControls
-        playing={playing}
-        onPlay={play}
-        onStop={stop}
-        bpm={params.bpm}
-        setBpm={n=>setParams(p=>({...p, bpm: n}))}
-      />
       <MixerFx
         volumes={volumes}
         setVolumes={(v)=>setVolumes(prev=>({...prev, ...v}))}
