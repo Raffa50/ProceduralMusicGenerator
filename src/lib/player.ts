@@ -14,11 +14,16 @@ export async function createPlayer(song: Song): Promise<Player> {
 
   // Master FX chain
   const comp = new Tone.Compressor({ threshold: -24, ratio: 3, attack: 0.01, release: 0.2 });
+  const chorus = new Tone.Chorus({ wet: 0.0, frequency: 1.5, depth: 0.7 }).start();
+  const dist = new Tone.Distortion(0.0);
   const reverb = new Tone.Reverb({ decay: 2.8, wet: 0.15 });
   const delay = new Tone.FeedbackDelay({ delayTime: '8n', feedback: 0.25, wet: 0.1 });
   const pump = new Tone.Tremolo({ frequency: '4n', depth: 0.0, spread: 0 }).start();
 
-  comp.connect(reverb);
+  // Catena effetti: comp -> chorus -> dist -> reverb -> delay -> pump -> master
+  comp.connect(chorus);
+  chorus.connect(dist);
+  dist.connect(reverb);
   reverb.connect(delay);
   delay.connect(pump);
   pump.toDestination();
@@ -26,7 +31,7 @@ export async function createPlayer(song: Song): Promise<Player> {
   // Instruments
   const kick = new Tone.MembraneSynth({ pitchDecay: 0.01, octaves: 8, envelope: { attack: 0.001, decay: 0.2, sustain: 0.0, release: 0.2 }}).connect(comp);
   const snare = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.15, sustain: 0 } }).connect(comp);
-  const hat = new Tone.MetalSynth({ frequency: 250, envelope: { attack: 0.001, decay: 0.08, release: 0.01 }, harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5 }).connect(comp);
+  const hat = new Tone.MetalSynth({ envelope: { attack: 0.001, decay: 0.08, release: 0.01 }, harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5 }).connect(comp);
   const bass = new Tone.MonoSynth({ oscillator: { type: 'square' }, filter: { frequency: 600 }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.4, release: 0.2 } }).connect(comp);
   const chords = new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'sawtooth' }, envelope: { attack: 0.02, decay: 0.2, sustain: 0.4, release: 0.6 } }).connect(comp);
   const arp = new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'triangle' }, envelope: { attack: 0.005, decay: 0.1, sustain: 0.2, release: 0.1 } }).connect(comp);
@@ -99,35 +104,53 @@ export async function createPlayer(song: Song): Promise<Player> {
   Tone.Transport.loopStart = 0;
   Tone.Transport.loopEnd = `${song.params.bars}:0:0`;
 
+  // Funzione per aggiornare gli effetti
+  function setFx(opts: any) {
+    if (opts.reverb !== undefined) reverb.wet.value = opts.reverb;
+    if (opts.reverbDecay !== undefined) reverb.decay = opts.reverbDecay;
+    if (opts.delay !== undefined) delay.wet.value = opts.delay;
+    if (opts.delayFeedback !== undefined) delay.feedback.value = opts.delayFeedback;
+    if (opts.pump !== undefined) pump.depth.value = opts.pump;
+    if (opts.compressorThreshold !== undefined) comp.threshold.value = opts.compressorThreshold;
+    if (opts.compressorRatio !== undefined) comp.ratio.value = opts.compressorRatio;
+    if (opts.chorusWet !== undefined) chorus.wet.value = opts.chorusWet;
+    if (opts.chorusRate !== undefined) chorus.frequency.value = opts.chorusRate;
+    if (opts.chorusDepth !== undefined) chorus.depth = opts.chorusDepth;
+    if (opts.distorsionAmount !== undefined) dist.distortion = opts.distorsionAmount;
+  }
+
   return {
-    async start() {
+    start: async () => {
       await Tone.start();
-      Tone.Transport.start('+0.1');
+      Tone.Transport.start();
     },
-    stop() {
+    stop: () => {
       Tone.Transport.stop();
+      parts.forEach(p => p.clear());
     },
-    dispose() {
+    dispose: () => {
+      Tone.Transport.stop();
       parts.forEach(p => p.dispose());
-      kick.dispose(); snare.dispose(); hat.dispose();
-      bass.dispose(); chords.dispose(); arp.dispose(); lead.dispose();
-      comp.dispose(); reverb.dispose(); delay.dispose(); pump.dispose();
+      comp.dispose();
+      chorus.dispose();
+      dist.dispose();
+      reverb.dispose();
+      delay.dispose();
+      pump.dispose();
+      kick.dispose();
+      snare.dispose();
+      hat.dispose();
+      bass.dispose();
+      chords.dispose();
+      arp.dispose();
+      lead.dispose();
       Object.values(vols).forEach(v => v.dispose());
     },
-    setVolumes(v) {
-      if (v.kick !== undefined) vols.kick.volume.value = v.kick;
-      if (v.snare !== undefined) vols.snare.volume.value = v.snare;
-      if (v.hat !== undefined) vols.hat.volume.value = v.hat;
-      if (v.bass !== undefined) vols.bass.volume.value = v.bass;
-      if (v.chords !== undefined) vols.chords.volume.value = v.chords;
-      if (v.arp !== undefined) vols.arp.volume.value = v.arp;
-      if (v.lead !== undefined) vols.lead.volume.value = v.lead;
-      if (v.master !== undefined) vols.master.volume.value = v.master;
+    setVolumes: (v) => {
+      Object.entries(v).forEach(([k, val]) => {
+        if (vols[k as keyof typeof vols]) vols[k as keyof typeof vols].volume.value = val;
+      });
     },
-    setFx(opts) {
-      reverb.wet.value = opts.reverb;
-      delay.wet.value = opts.delay;
-      pump.depth.value = opts.pump;
-    }
+    setFx,
   }
 }

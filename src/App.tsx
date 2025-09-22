@@ -5,6 +5,7 @@ import { defaultParams, generate, type Params, type Song } from './lib/generator
 import { createPlayer, type Player } from './lib/player'
 import { exportSongToMidi } from './lib/midiExport'
 import { MidiInstruments } from './components/MidiInstruments'
+import { FxParams } from './lib/FxParams'
 
 export default function App(){
   const [params, setParams] = React.useState<Params>(() => ({
@@ -16,7 +17,8 @@ export default function App(){
   const [volumes, setVolumes] = React.useState<Record<'kick'|'snare'|'hat'|'bass'|'chords'|'arp'|'lead'|'master', number>>({
     kick: -6, snare: -10, hat: -14, bass: -8, chords: -10, arp: -14, lead: -9, master: 0
   });
-  const [fx, setFx] = React.useState({ reverb: 0.15, delay: 0.1, pump: 0.0 });
+  // Stato effetti esteso
+  const [fx, setFx] = React.useState<FxParams>(new FxParams());
   const [seed, setSeed] = React.useState<number>(() => Math.floor(Math.random()*1000000));
 
   // Mappa strumenti General MIDI principali
