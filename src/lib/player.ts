@@ -104,6 +104,21 @@ export async function createPlayer(song: Song): Promise<Player> {
   Tone.Transport.loopStart = 0;
   Tone.Transport.loopEnd = `${song.params.bars}:0:0`;
 
+  // Funzione per aggiornare la catena degli effetti in base ai flag enabled
+  function updateFxChain(opts: any) {
+    // Scollega tutto
+    comp.disconnect(); chorus.disconnect(); dist.disconnect(); reverb.disconnect(); delay.disconnect(); pump.disconnect();
+    // Catena dinamica
+    let last = comp;
+    if (opts.compressorEnabled === false) last = comp;
+    if (opts.chorusEnabled !== false) { last.connect(chorus); last = chorus; }
+    if (opts.distorsionEnabled !== false) { last.connect(dist); last = dist; }
+    if (opts.reverbEnabled !== false) { last.connect(reverb); last = reverb; }
+    if (opts.delayEnabled !== false) { last.connect(delay); last = delay; }
+    if (opts.pumpEnabled !== false) { last.connect(pump); last = pump; }
+    last.toDestination();
+  }
+
   // Funzione per aggiornare gli effetti
   function setFx(opts: any) {
     if (opts.reverb !== undefined) reverb.wet.value = opts.reverb;
@@ -117,6 +132,8 @@ export async function createPlayer(song: Song): Promise<Player> {
     if (opts.chorusRate !== undefined) chorus.frequency.value = opts.chorusRate;
     if (opts.chorusDepth !== undefined) chorus.depth = opts.chorusDepth;
     if (opts.distorsionAmount !== undefined) dist.distortion = opts.distorsionAmount;
+    // Aggiorna la catena degli effetti
+    updateFxChain(opts);
   }
 
   return {
