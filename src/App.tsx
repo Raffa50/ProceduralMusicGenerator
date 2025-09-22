@@ -94,6 +94,12 @@ export default function App(){
     }, 100);
   }
 
+  // Aggiorna la song ogni volta che cambiano BPM, strumenti, durata, seed o params
+  React.useEffect(() => {
+    const s = generate(params, seed);
+    setSong(s);
+  }, [params.bpm, params.bars, instruments, seed]);
+
   // Aggiorna il numero di barre in base a durata e BPM
   React.useEffect(() => {
     const barSeconds = (60 / params.bpm) * 4;
@@ -125,7 +131,11 @@ export default function App(){
             setStyle={s => setParams(p => ({ ...p, style: s }))}
             setBpm={n => setParams(p => ({ ...p, bpm: n }))}
           />
-          <MidiInstruments instruments={instruments} setInstruments={setInstruments} GM_INSTRUMENTS={GM_INSTRUMENTS} />
+          <MidiInstruments
+              instruments={instruments}
+              setInstruments={newInstruments => setInstruments(newInstruments)}
+              GM_INSTRUMENTS={GM_INSTRUMENTS}
+            />
         </div>
         <div className="row" style={{marginTop: 10}}>
           <button className="btn" onClick={()=>regen()}>Rigenera fraseggio</button>

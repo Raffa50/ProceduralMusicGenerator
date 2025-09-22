@@ -17,6 +17,7 @@ export type TrackName = 'bass' | 'chords' | 'arp' | 'lead';
 
 export function exportSongToMidi(song: Song, instruments?: Record<TrackName, number>): Uint8Array {
   const midi = new Midi();
+  console.log("Exporting song to MIDI with BPM:", song.params.bpm);
   midi.header.setTempo(song.params.bpm);
 
   for (const trackInfo of TRACKS) {
@@ -31,8 +32,8 @@ export function exportSongToMidi(song: Song, instruments?: Record<TrackName, num
     for (const note of events) {
       track.addNote({
         midi: note.midi,
-        time: note.step * (0.25 / 4), // 1 step = 1/16, so 0.25/4 quarter notes
-        duration: note.dur * (0.25 / 4),
+        time: note.step * 0.25, // 1 step = 0.25 quarter notes
+        duration: note.dur * 0.25,
         velocity: note.vel,
       });
     }

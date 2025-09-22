@@ -55,7 +55,7 @@ function choiceSeeded<T>(arr: T[], randFn: () => number): T {
 
 export function defaultParams(): Params {
   return {
-    bpm: 100,
+    bpm: 80,
     tonic: 'C',
     mode: 'major',
     progression: ['I','V','vi','IV'],
