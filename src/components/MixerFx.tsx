@@ -38,12 +38,25 @@ export function MixerFx(props: {
           <label>
             <input type="checkbox" checked={props.fx.delayEnabled} onChange={e=>props.setFx({delayEnabled: e.target.checked})} /> Delay
           </label>
+          <label>Tempo</label>
+          <select value={props.fx.delayTempo} onChange={e=>props.setFx({delayTempo: e.target.value})} disabled={!props.fx.delayEnabled}>
+            <option value="1/2">1/2</option>
+            <option value="1/4">1/4</option>
+            <option value="1/8">1/8</option>
+            <option value="1/16">1/16</option>
+          </select>
           <label>Wet</label>
-          <input className="slider" type="range" min="0" max="1" step="0.01" value={props.fx.delay}
-                 onChange={e=>props.setFx({delay: parseFloat(e.target.value)})} disabled={!props.fx.delayEnabled} />
+          <input className="slider" type="range" min="0" max="1" step="0.01" value={props.fx.delayMix}
+                 onChange={e=>props.setFx({delayMix: parseFloat(e.target.value)})} disabled={!props.fx.delayEnabled} />
           <label>Feedback</label>
           <input className="slider" type="range" min="0" max="1" step="0.01" value={props.fx.delayFeedback}
                  onChange={e=>props.setFx({delayFeedback: parseFloat(e.target.value)})} disabled={!props.fx.delayEnabled} />
+          <label>Cutoff</label>
+          <input className="slider" type="range" min="1000" max="20000" step="100" value={props.fx.delayCutoff}
+                 onChange={e=>props.setFx({delayCutoff: parseFloat(e.target.value)})} disabled={!props.fx.delayEnabled} />
+          <label>Spread</label>
+          <input className="slider" type="range" min="0" max="1" step="0.01" value={props.fx.delaySpread}
+                 onChange={e=>props.setFx({delaySpread: parseFloat(e.target.value)})} disabled={!props.fx.delayEnabled} />
         </div>
         <div>
           <label>
@@ -61,8 +74,20 @@ export function MixerFx(props: {
           <input className="slider" type="range" min="-60" max="0" step="1" value={props.fx.compressorThreshold}
                  onChange={e=>props.setFx({compressorThreshold: parseFloat(e.target.value)})} disabled={!props.fx.compressorEnabled} />
           <label>Ratio</label>
-          <input className="slider" type="range" min="1" max="10" step="0.1" value={props.fx.compressorRatio}
+          <input className="slider" type="range" min="1" max="20" step="0.1" value={props.fx.compressorRatio}
                  onChange={e=>props.setFx({compressorRatio: parseFloat(e.target.value)})} disabled={!props.fx.compressorEnabled} />
+          <label>Mix</label>
+          <input className="slider" type="range" min="0" max="1" step="0.01" value={props.fx.compressorMix}
+                 onChange={e=>props.setFx({compressorMix: parseFloat(e.target.value)})} disabled={!props.fx.compressorEnabled} />
+          <label>Low</label>
+          <input className="slider" type="range" min="0" max="2" step="0.01" value={props.fx.compressorLow}
+                 onChange={e=>props.setFx({compressorLow: parseFloat(e.target.value)})} disabled={!props.fx.compressorEnabled} />
+          <label>Band</label>
+          <input className="slider" type="range" min="0" max="2" step="0.01" value={props.fx.compressorBand}
+                 onChange={e=>props.setFx({compressorBand: parseFloat(e.target.value)})} disabled={!props.fx.compressorEnabled} />
+          <label>High</label>
+          <input className="slider" type="range" min="0" max="2" step="0.01" value={props.fx.compressorHigh}
+                 onChange={e=>props.setFx({compressorHigh: parseFloat(e.target.value)})} disabled={!props.fx.compressorEnabled} />
         </div>
         <div>
           <label>

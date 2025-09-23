@@ -17,6 +17,17 @@ export class FxParams {
   distorsionAmount: number = 0.0;
   distorsionEnabled: boolean = true;
 
+  // Delay
+  delayTempo: string = "1/4"; // es. "1/2", "1/4", "1/8"
+  delayMix: number = 0.1;
+  delayCutoff: number = 12000;
+  delaySpread: number = 0.0;
+  // Compressor
+  compressorMix: number = 1.0;
+  compressorLow: number = 1.0;
+  compressorBand: number = 1.0;
+  compressorHigh: number = 1.0;
+
   constructor(init?: Partial<FxParams>) {
     Object.assign(this, init);
   }
