@@ -26,7 +26,7 @@ export function StyleAndHarmony(props: {
   }
   return (
     <div className="panel">
-      <h3>Stile & Armonia</h3>
+      <h3>Style & Harmony</h3>
       <div className="row" style={{marginTop: 8}}>
         <div>
           <label>Preset</label>
@@ -35,26 +35,26 @@ export function StyleAndHarmony(props: {
           </select>
         </div>
         <div>
-          <label>Tonalità</label>
+          <label>Key</label>
           <select value={props.tonic} onChange={e=>props.setTonic(e.target.value)}>
             {KEYS.map(k => <option key={k} value={k}>{k}</option>)}
           </select>
         </div>
         <div className="seg">
-          <button className={props.mode==='major'?'active':''} onClick={()=>props.setMode('major')}>Maggiore</button>
-          <button className={props.mode==='minor'?'active':''} onClick={()=>props.setMode('minor')}>Minore</button>
+          <button className={props.mode==='major'?'active':''} onClick={()=>props.setMode('major')}>Major</button>
+          <button className={props.mode==='minor'?'active':''} onClick={()=>props.setMode('minor')}>Minor</button>
         </div>
       </div>
       <div style={{marginTop: 12}}>
-        <label>Giro di accordi</label>
+        <label>Chord progression</label>
         <div className="row">
           <select value={props.progression.join('-')} onChange={e=>props.setProgression(e.target.value.split('-'))}>
             <option value="I-V-vi-IV">I–V–vi–IV (Pop)</option>
             <option value="ii-V-I-I">ii–V–I–I (Jazz/Pop)</option>
-            <option value="i-VII-VI-V">i–VII–VI–V (Andaluso)</option>
+            <option value="i-VII-VI-V">i–VII–VI–V (Andalusian)</option>
             <option value="i-iv-VI-V">i–iv–VI–V (Lo-Fi)</option>
           </select>
-          <span className="small">Suggerimento: varia la tonalità per cambiare il colore senza alterare la struttura.</span>
+          <span className="small">Tip: change the key to alter the color without changing the structure.</span>
         </div>
       </div>
     </div>

@@ -140,8 +140,8 @@ export default function App(){
             />
         </div>
         <div className="row" style={{marginTop: 10}}>
-          <button className="btn" onClick={()=>regen()}>Rigenera fraseggio</button>
-          <button className="btn" onClick={exportMidi} disabled={!song}>Esporta MIDI</button>
+          <button className="btn" onClick={()=>regen()}>Regenerate phrase</button>
+          <button className="btn" onClick={exportMidi} disabled={!song}>Export MIDI</button>
           <label style={{marginLeft:16}}>
             Seed:
             <input
@@ -160,16 +160,16 @@ export default function App(){
             <input type="number" value={params.bpm} min={60} max={180} style={{width:60, marginLeft:8}}
               onChange={e=>setParams(p=>({...p, bpm: Math.max(60, Math.min(180, parseInt(e.target.value||'0')))}))} />
           </label>
-          <label style={{marginLeft:16}}>Barre:
+          <label style={{marginLeft:16}}>Bars:
             <input type="number" value={params.bars} min={4} max={32} style={{width:40, marginLeft:8}}
               onChange={e=>setParams(p=>({...p, bars: Math.max(4, Math.min(32, parseInt(e.target.value||'0')))}))} />
           </label>
-          <label style={{marginLeft:16}}>Durata (s):
+          <label style={{marginLeft:16}}>Duration (s):
             <input type="number" value={songDuration} min={10} max={600} style={{width:60, marginLeft:8}}
               onChange={e=>setSongDuration(Math.max(10, Math.min(600, parseInt(e.target.value||'0'))))} />
           </label>
-          <label style={{marginLeft:16}}>Umanizzazione
-            <input type="range" min={0} max={1} step={0.01} value={params.humanize}
+          <label style={{marginLeft:16}}>Humanize
+            <input type="range" min={0} max={1} step="0.01" value={params.humanize}
               onChange={e=>setParams(p=>({...p, humanize: parseFloat(e.target.value)}))} />
           </label>
 
@@ -186,10 +186,9 @@ export default function App(){
         fx={fx}
         setFx={(f)=>setFx(prev=>({...prev, ...f}))}
       />
-      <div className="panel footer">
-        <div>Scorciatoie: <span className="kbd">Play</span>/<span className="kbd">Stop</span>. Regola i volumi per bilanciare le parti.</div>
-        <div className="small">MVP: export MIDI non ancora incluso. Se lo desideri, posso aggiungerlo con <i>midi-writer-js</i>.</div>
-      </div>
+      <footer style={{marginTop:32, textAlign:'center', fontSize:'0.9em', color:'#888'}}>
+        Procedural Music Generator v0.1.0 &copy; 2025 - Author: Raffaele Aldrigo
+      </footer>
     </div>
   )
 }

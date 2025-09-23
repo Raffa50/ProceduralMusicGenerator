@@ -8,7 +8,7 @@ export function MixerFx(props: {
   setFx: (f: Partial<FxParams>) => void
 }){
   const names: Array<[keyof typeof props.volumes, string]> = [
-    ['kick','Kick'], ['snare','Snare'], ['hat','Hat'], ['bass','Basso'], ['chords','Accordi'], ['arp','Arp'], ['lead','Lead'], ['master','Master']
+    ['kick','Kick'], ['snare','Snare'], ['hat','Hat'], ['bass','Bass'], ['chords','Chords'], ['arp','Arp'], ['lead','Lead'], ['master','Master']
   ];
   return (
     <div className="panel">
@@ -25,7 +25,7 @@ export function MixerFx(props: {
       <div className="row" style={{marginTop:12, flexWrap:'wrap', gap:24}}>
         <div>
           <label>
-            <input type="checkbox" checked={props.fx.reverbEnabled} onChange={e=>props.setFx({reverbEnabled: e.target.checked})} /> Riverbero
+            <input type="checkbox" checked={props.fx.reverbEnabled} onChange={e=>props.setFx({reverbEnabled: e.target.checked})} /> Reverb
           </label>
           <label>Wet</label>
           <input className="slider" type="range" min="0" max="1" step="0.01" value={props.fx.reverb}
@@ -105,7 +105,7 @@ export function MixerFx(props: {
         </div>
         <div>
           <label>
-            <input type="checkbox" checked={props.fx.distorsionEnabled} onChange={e=>props.setFx({distorsionEnabled: e.target.checked})} /> Distorsion
+            <input type="checkbox" checked={props.fx.distorsionEnabled} onChange={e=>props.setFx({distorsionEnabled: e.target.checked})} /> Distortion
           </label>
           <label>Amount</label>
           <input className="slider" type="range" min="0" max="1" step="0.01" value={props.fx.distorsionAmount}

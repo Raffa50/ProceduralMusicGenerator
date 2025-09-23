@@ -14,7 +14,7 @@ export const MidiInstruments: React.FC<MidiInstrumentsProps> = ({ instruments, s
 
   // Fallback di debug: mostra un messaggio se le props sono undefined/null
   if (!instruments || !setInstruments || !GM_INSTRUMENTS) {
-    return <div style={{ color: 'red', padding: 16 }}>Errore: props MidiInstruments non definite</div>;
+    return <div style={{ color: 'red', padding: 16 }}>Error: MidiInstruments props not defined</div>;
   }
 
   function handleChange(track: TrackName, program: number) {
@@ -23,7 +23,7 @@ export const MidiInstruments: React.FC<MidiInstrumentsProps> = ({ instruments, s
 
   return (
     <div style={{ padding: 16, minWidth: 260 }}>
-      <h3>Strumenti MIDI</h3>
+      <h3>MIDI Instruments</h3>
       {TRACKS.map(track => (
         <div key={track} style={{ marginBottom: 12 }}>
           <label style={{ marginRight: 8 }}>{track.charAt(0).toUpperCase() + track.slice(1)}:</label>
